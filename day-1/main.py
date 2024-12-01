@@ -1,4 +1,4 @@
-import time
+import time, collections
 
 def parse(filename):
     f = open("data.txt", "rt")
@@ -10,18 +10,31 @@ def parse(filename):
         right.append(int(tmp[1]))
     left.sort()
     right.sort()
-    return zip(left,right)
+    counter = collections.Counter(right)
+
+    return zip(left,right), left, counter
 
 def compare(pairs):
     difference = 0
-    for pair in parse('data.txt'):
-        difference += abs(pair[0] - pair[1])
+    for left, right in pairs:
+        difference += abs(left - right)
     return difference
 
+def similarity(left, right_count):
+    similarity = 0
+    for id in left:
+        similarity += (id * right_count[id])
+    return similarity
+    
+
 def main():
-    pairs = parse('data.txt')
+    pairs, left, right_count = parse('data.txt')
     diff = compare(pairs)
-    print(diff)
+    similar = similarity(left, right_count)
+    print("Difference: %s" % (diff))
+    print("Similarity: %s" % (similar))
+    
+    
 
 if __name__ == "__main__":
     start_time = time.time()
