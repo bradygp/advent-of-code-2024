@@ -4,7 +4,8 @@ def identify_safe_reports(filename):
     f = open(filename, "rt")
     count = 0
     for report in f.readlines():
-        levels = report.split()
+        dampened = False
+        levels = list(map(int,report.split()))
         i = 0
         while i < len(levels):
             try:
@@ -12,9 +13,14 @@ def identify_safe_reports(filename):
                 next = int(levels[i+1])
                 i = i + 1
                 if is_jumping_or_stale(current, next):
-                    break
+                    if dampened:
+                        break
+                    else:
+                        dampened = True
+                        print("Dampened Report: %s" % (levels))    
+                        continue
             except IndexError:
-                if is_ordered(list(map(int, report.split()))):
+                if is_dampened_ordered(levels):
                     count += 1
                 break
     return count
@@ -32,6 +38,16 @@ def is_ordered(report):
     if report == sortr:
         return True
     return False
+
+def is_dampened_ordered(report):
+    if is_ordered(report):
+        return True
+    i = 0
+    while i < len(report):
+        if is_ordered(report[:i] + report[i+1 :]):
+            print("Dampened Report: %s" % (report)) 
+            return True
+        i += 1
 
 def main():
     safe_reports = identify_safe_reports('reports.txt')
